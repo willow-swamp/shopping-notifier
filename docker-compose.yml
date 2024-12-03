@@ -1,0 +1,11 @@
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/amd64
+    environment:
+      - MYSQL_DATABASE=gorm_database
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306"
