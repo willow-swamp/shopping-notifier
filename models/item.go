@@ -7,8 +7,8 @@ import (
 
 type Item struct {
 	gorm.Model
-	GroupID     uint                   `gorm:"not null"`
+	UserID      string                 `gorm:"not null"`
 	Name        string                 `gorm:"not null"`
-	Priority    config.PriorityType    `gorm:"type:enum('低', '中', '高'):default:'中'"`
-	StockStatus config.StockStatusType `gorm:"type:enum('在庫あり', '在庫なし'):default:'在庫なし'"`
+	Priority    config.PriorityType    `gorm:"type:enum('低', '中', '高');default:中"`
+	StockStatus config.StockStatusType `gorm:"type:enum('在庫あり', '在庫なし');default:在庫なし"`
 }
