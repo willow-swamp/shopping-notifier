@@ -4,7 +4,7 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
-	LineId  string
-	Name    string
-	GroupId int
+	LineID  string `gorm:"unique;not null"`
+	Name    string `gorm:"not null"`
+	GroupID uint   `gorm:"not null"`
 }
