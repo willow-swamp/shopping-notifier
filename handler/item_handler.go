@@ -49,7 +49,8 @@ func (h *ItemHandler) GetItem(w http.ResponseWriter, r *http.Request) {
 func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var item models.Item
-		item.UserID = r.FormValue("user_id")
+		group_id := r.FormValue("group_id")
+		item.GroupID, _ = strconv.Atoi(group_id)
 		item.Name = r.FormValue("name")
 		item.Priority = convPriority(r.FormValue("priority"))
 		item.StockStatus = convStockStatus(r.FormValue("stock_status"))
@@ -88,7 +89,8 @@ func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		item.UserID = r.FormValue("user_id")
+		group_id := r.FormValue("group_id")
+		item.GroupID, _ = strconv.Atoi(group_id)
 		item.Name = r.FormValue("name")
 		item.Priority = convPriority(r.FormValue("priority"))
 		item.StockStatus = convStockStatus(r.FormValue("stock_status"))
