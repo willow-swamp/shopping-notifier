@@ -25,12 +25,20 @@ func main() {
 	item_handler := handler.NewItemHandler(item_service)
 
 	// Start the server
-	http.HandleFunc("/", item_handler.GetItems)
-	http.HandleFunc("/show", item_handler.GetItem)
+	http.HandleFunc("/items", item_handler.GetItems)
+	http.HandleFunc("/item", item_handler.GetItem)
 	//http.HandleFunc("/new", New)
 	http.HandleFunc("/edit", item_handler.EditItem)
-	http.HandleFunc("/create", item_handler.CreateItem)
-	http.HandleFunc("/update", item_handler.UpdateItem)
-	http.HandleFunc("/delete", item_handler.DeleteItem)
+	http.HandleFunc("/create_item", item_handler.CreateItem)
+	http.HandleFunc("/update_item", item_handler.UpdateItem)
+	http.HandleFunc("/delete_item", item_handler.DeleteItem)
+
+	user_service := service.NewUserService(dbRepository)
+	user_handler := handler.NewUserHandler(user_service)
+
+	http.HandleFunc("/users", user_handler.GetUsers)
+	http.HandleFunc("/user", user_handler.GetUser)
+	http.HandleFunc("/create_user", user_handler.CreateUser)
+
 	http.ListenAndServe(":8080", nil)
 }
