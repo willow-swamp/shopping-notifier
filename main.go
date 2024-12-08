@@ -21,16 +21,16 @@ func main() {
 	}
 
 	dbRepository := repository.NewMySQLRepository(db)
-	service := service.NewService(dbRepository)
-	handler := handler.NewHandler(service)
+	item_service := service.NewItemService(dbRepository)
+	item_handler := handler.NewItemHandler(item_service)
 
 	// Start the server
-	http.HandleFunc("/", handler.GetItems)
-	http.HandleFunc("/show", handler.GetItem)
+	http.HandleFunc("/", item_handler.GetItems)
+	http.HandleFunc("/show", item_handler.GetItem)
 	//http.HandleFunc("/new", New)
-	http.HandleFunc("/edit", handler.EditItem)
-	http.HandleFunc("/create", handler.CreateItem)
-	http.HandleFunc("/update", handler.UpdateItem)
-	http.HandleFunc("/delete", handler.DeleteItem)
+	http.HandleFunc("/edit", item_handler.EditItem)
+	http.HandleFunc("/create", item_handler.CreateItem)
+	http.HandleFunc("/update", item_handler.UpdateItem)
+	http.HandleFunc("/delete", item_handler.DeleteItem)
 	http.ListenAndServe(":8080", nil)
 }
