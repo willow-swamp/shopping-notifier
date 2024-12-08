@@ -10,15 +10,15 @@ import (
 	"github.com/willow-swamp/shopping-notifier/service"
 )
 
-type Handler struct {
-	service *service.Service
+type ItemHandler struct {
+	service *service.ItemService
 }
 
-func NewHandler(s *service.Service) *Handler {
-	return &Handler{service: s}
+func NewItemHandler(s *service.ItemService) *ItemHandler {
+	return &ItemHandler{service: s}
 }
 
-func (h *Handler) GetItems(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) GetItems(w http.ResponseWriter, r *http.Request) {
 	items, err := h.service.GetItems()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -31,7 +31,7 @@ func (h *Handler) GetItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-func (h *Handler) GetItem(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) GetItem(w http.ResponseWriter, r *http.Request) {
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
 	item, err := h.service.GetItem(id)
@@ -39,14 +39,14 @@ func (h *Handler) GetItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if item != nil {
+	if item == nil {
 		http.Error(w, "No item", http.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(item)
 }
 
-func (h *Handler) CreateItem(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var item models.Item
 		item.UserID = r.FormValue("user_id")
@@ -64,7 +64,7 @@ func (h *Handler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) EditItem(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) EditItem(w http.ResponseWriter, r *http.Request) {
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
 	item, err := h.service.GetItem(id)
@@ -72,10 +72,14 @@ func (h *Handler) EditItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if item == nil {
+		http.Error(w, "No item", http.StatusInternalServerError)
+		return
+	}
 	json.NewEncoder(w).Encode(item)
 }
 
-func (h *Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		nId := r.FormValue("id")
 		id, _ := strconv.Atoi(nId)
@@ -99,7 +103,7 @@ func (h *Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *Handler) DeleteItem(w http.ResponseWriter, r *http.Request) {
+func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		nId := r.FormValue("id")
 		id, _ := strconv.Atoi(nId)
