@@ -24,6 +24,6 @@ func DBConn() (*gorm.DB, error) {
 }
 
 func Migrate(db *gorm.DB) error {
-	err := db.AutoMigrate(&models.User{}, &models.Item{}, &models.Group{}, &models.Whitelist{})
+	err := db.AutoMigrate(&models.Group{}, &models.Item{}, &models.User{}, &models.Whitelist{})
 	return err
 }
