@@ -11,3 +11,9 @@ type ItemRepository interface {
 	UpdateItem(item *models.Item) error
 	DeleteItem(id int) error
 }
+
+type UserRepository interface {
+	GetUsers() ([]models.User, error)
+	GetUser(id int) (*models.User, error)
+	CreateUser(user *models.User) error
+}
