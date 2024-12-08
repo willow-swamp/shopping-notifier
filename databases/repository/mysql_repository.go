@@ -55,3 +55,29 @@ func (db MySQLRepository) DeleteItem(id int) error {
 	}
 	return nil
 }
+
+func (db MySQLRepository) GetUsers() ([]models.User, error) {
+	var users []models.User
+	result := db.db.Find(&users)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return users, nil
+}
+
+func (db MySQLRepository) GetUser(id int) (*models.User, error) {
+	var user models.User
+	result := db.db.First(&user, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func (db MySQLRepository) CreateUser(user *models.User) error {
+	result := db.db.Create(user)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

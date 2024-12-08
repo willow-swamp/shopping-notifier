@@ -4,10 +4,16 @@ import (
 	"github.com/willow-swamp/shopping-notifier/models"
 )
 
-type Repository interface {
+type ItemRepository interface {
 	GetItems() ([]models.Item, error)
 	GetItem(id int) (*models.Item, error)
 	CreateItem(item *models.Item) error
 	UpdateItem(item *models.Item) error
 	DeleteItem(id int) error
+}
+
+type UserRepository interface {
+	GetUsers() ([]models.User, error)
+	GetUser(id int) (*models.User, error)
+	CreateUser(user *models.User) error
 }
