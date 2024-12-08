@@ -1,18 +1,25 @@
-package controller
+package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/willow-swamp/shopping-notifier/config"
-	"github.com/willow-swamp/shopping-notifier/databases"
 	"github.com/willow-swamp/shopping-notifier/models"
+	"github.com/willow-swamp/shopping-notifier/service"
 )
 
-func IndexItems(w http.ResponseWriter, r *http.Request) {
-	items, err := databases.GetItems()
+type Handler struct {
+	service *service.Service
+}
+
+func NewHandler(s *service.Service) *Handler {
+	return &Handler{service: s}
+}
+
+func (h *Handler) GetItems(w http.ResponseWriter, r *http.Request) {
+	items, err := h.service.GetItems()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -24,26 +31,29 @@ func IndexItems(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(items)
 }
 
-func ShowItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetItem(w http.ResponseWriter, r *http.Request) {
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
-	item, err := databases.GetItem(id)
+	item, err := h.service.GetItem(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if item != nil {
+		http.Error(w, "No item", http.StatusInternalServerError)
 		return
 	}
 	json.NewEncoder(w).Encode(item)
 }
 
-func CreateItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var item models.Item
 		item.UserID = r.FormValue("user_id")
 		item.Name = r.FormValue("name")
 		item.Priority = convPriority(r.FormValue("priority"))
 		item.StockStatus = convStockStatus(r.FormValue("stock_status"))
-		fmt.Println(item)
-		err := databases.CreateItem(&item)
+		err := h.service.CreateItem(&item)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -54,10 +64,10 @@ func CreateItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func EditItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) EditItem(w http.ResponseWriter, r *http.Request) {
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
-	item, err := databases.GetItem(id)
+	item, err := h.service.GetItem(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -65,11 +75,11 @@ func EditItem(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(item)
 }
 
-func UpdateItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		nId := r.FormValue("id")
 		id, _ := strconv.Atoi(nId)
-		item, err := databases.GetItem(id)
+		item, err := h.service.GetItem(id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -78,7 +88,7 @@ func UpdateItem(w http.ResponseWriter, r *http.Request) {
 		item.Name = r.FormValue("name")
 		item.Priority = convPriority(r.FormValue("priority"))
 		item.StockStatus = convStockStatus(r.FormValue("stock_status"))
-		err = databases.UpdateItem(item)
+		err = h.service.UpdateItem(item)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -89,11 +99,11 @@ func UpdateItem(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DeleteItem(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		nId := r.FormValue("id")
 		id, _ := strconv.Atoi(nId)
-		err := databases.DeleteItem(id)
+		err := h.service.DeleteItem(id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
