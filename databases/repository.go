@@ -5,7 +5,7 @@ import (
 )
 
 type ItemRepository interface {
-	GetItems() ([]models.Item, error)
+	GetItems(group_id uint) ([]models.Item, error)
 	GetItem(id int) (*models.Item, error)
 	CreateItem(item *models.Item) error
 	UpdateItem(item *models.Item) error
@@ -14,6 +14,10 @@ type ItemRepository interface {
 
 type UserRepository interface {
 	GetUsers() ([]models.User, error)
-	GetUser(id int) (*models.User, error)
-	CreateUser(user *models.User) error
+	GetUser(sub string) (*models.User, error)
+	//CreateUser(user *models.User) error
+}
+
+type GroupRepository interface {
+	GetGroup(id uint) (*models.Group, error)
 }
