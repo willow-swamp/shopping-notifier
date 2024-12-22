@@ -1,0 +1,33 @@
+{{ define "Scripts" }}
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script>
+  liff.init({
+      liffId: "2006648925-708m45gz",
+      withLoginOnExternalBrowser: true,
+  })
+  .then(() => {
+    if (liff.isLoggedIn()) {
+      const idToken = liff.getIDToken();
+      
+      if (!idToken) {
+        liff.login({ redirectUri: window.location.href });
+        return;
+      }
+  
+      fetch("/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id_token: idToken,
+        }),
+      })
+      .catch((err) => {
+        console.log("Login failed", err);
+      });
+    }
+  })
+  .catch((err) => {
+    console.log('LIFF Initialization failed', err);
+  });
+  </script>
+{{ end }}
