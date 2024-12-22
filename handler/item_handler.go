@@ -2,9 +2,11 @@ package handler
 
 import (
 	"encoding/json"
+	"html/template"
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/sessions"
 	"github.com/willow-swamp/shopping-notifier/config"
 	"github.com/willow-swamp/shopping-notifier/models"
 	"github.com/willow-swamp/shopping-notifier/service"
@@ -12,23 +14,45 @@ import (
 
 type ItemHandler struct {
 	service *service.ItemService
+	store   *sessions.CookieStore
 }
 
-func NewItemHandler(s *service.ItemService) *ItemHandler {
-	return &ItemHandler{service: s}
+func NewItemHandler(service *service.ItemService, store *sessions.CookieStore) *ItemHandler {
+	return &ItemHandler{service: service, store: store}
 }
+
+var tmpl = template.Must(template.ParseGlob("front/*.tmpl"))
 
 func (h *ItemHandler) GetItems(w http.ResponseWriter, r *http.Request) {
+	session, err := h.store.Get(r, "line-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sub, ok := session.Values["sub"].(string)
+	if !ok || sub == "" {
+		var emptyItems []models.Item
+		tmpl.ExecuteTemplate(w, "Items", emptyItems)
+		return
+	}
+
+	var LoginUser models.LoginUser
+	LoginUser.Sub = sub
+	LoginUser.Name = session.Values["name"].(string)
+	LoginUser.Picture = session.Values["picture"].(string)
+
 	items, err := h.service.GetItems()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	if len(items) == 0 {
-		http.Error(w, "No items", http.StatusNotFound)
-		return
-	}
-	json.NewEncoder(w).Encode(items)
+	//if len(items) == 0 {
+	//	http.Error(w, "No items", http.StatusNotFound)
+	//	return
+	//}
+	//json.NewEncoder(w).Encode(items)
+	tmpl.ExecuteTemplate(w, "Items", items)
 }
 
 func (h *ItemHandler) GetItem(w http.ResponseWriter, r *http.Request) {
