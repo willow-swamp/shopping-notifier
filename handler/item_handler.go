@@ -13,12 +13,14 @@ import (
 )
 
 type ItemHandler struct {
-	service *service.ItemService
-	store   *sessions.CookieStore
+	item_service  *service.ItemService
+	user_service  *service.UserService
+	group_service *service.GroupService
+	store         *sessions.CookieStore
 }
 
-func NewItemHandler(service *service.ItemService, store *sessions.CookieStore) *ItemHandler {
-	return &ItemHandler{service: service, store: store}
+func NewItemHandler(item_service *service.ItemService, user_service *service.UserService, group_service *service.GroupService, store *sessions.CookieStore) *ItemHandler {
+	return &ItemHandler{item_service: item_service, user_service: user_service, group_service: group_service, store: store}
 }
 
 var tmpl = template.Must(template.ParseGlob("front/*.tmpl"))
@@ -42,7 +44,27 @@ func (h *ItemHandler) GetItems(w http.ResponseWriter, r *http.Request) {
 	LoginUser.Name = session.Values["name"].(string)
 	LoginUser.Picture = session.Values["picture"].(string)
 
-	items, err := h.service.GetItems()
+	user, err := h.user_service.GetUser(LoginUser.Sub)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if user == nil {
+		http.Error(w, "No user", http.StatusInternalServerError)
+		return
+	}
+
+	group, err := h.group_service.GetGroup(user.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if group == nil {
+		http.Error(w, "No group", http.StatusInternalServerError)
+		return
+	}
+
+	items, err := h.item_service.GetItems(group.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -58,7 +80,7 @@ func (h *ItemHandler) GetItems(w http.ResponseWriter, r *http.Request) {
 func (h *ItemHandler) GetItem(w http.ResponseWriter, r *http.Request) {
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
-	item, err := h.service.GetItem(id)
+	item, err := h.item_service.GetItem(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -78,7 +100,7 @@ func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 		item.Name = r.FormValue("name")
 		item.Priority = convPriority(r.FormValue("priority"))
 		item.StockStatus = convStockStatus(r.FormValue("stock_status"))
-		err := h.service.CreateItem(&item)
+		err := h.item_service.CreateItem(&item)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -92,7 +114,7 @@ func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 func (h *ItemHandler) EditItem(w http.ResponseWriter, r *http.Request) {
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
-	item, err := h.service.GetItem(id)
+	item, err := h.item_service.GetItem(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -108,7 +130,7 @@ func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		nId := r.FormValue("id")
 		id, _ := strconv.Atoi(nId)
-		item, err := h.service.GetItem(id)
+		item, err := h.item_service.GetItem(id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -118,7 +140,7 @@ func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		item.Name = r.FormValue("name")
 		item.Priority = convPriority(r.FormValue("priority"))
 		item.StockStatus = convStockStatus(r.FormValue("stock_status"))
-		err = h.service.UpdateItem(item)
+		err = h.item_service.UpdateItem(item)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -133,7 +155,7 @@ func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		nId := r.FormValue("id")
 		id, _ := strconv.Atoi(nId)
-		err := h.service.DeleteItem(id)
+		err := h.item_service.DeleteItem(id)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
