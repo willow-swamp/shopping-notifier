@@ -49,7 +49,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		var user models.User
 		user.LineID = r.FormValue("line_id")
-		user.Name = r.FormValue("name")
 		nGroupId := r.FormValue("group_id")
 		user.GroupID, _ = strconv.Atoi(nGroupId)
 		err := h.service.CreateUser(&user)
