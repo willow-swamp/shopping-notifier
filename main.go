@@ -32,8 +32,12 @@ func main() {
 	var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 	dbRepository := repository.NewMySQLRepository(db)
+
+	user_service := service.NewUserService(dbRepository)
+	group_service := service.NewGroupService(dbRepository)
+
 	item_service := service.NewItemService(dbRepository)
-	item_handler := handler.NewItemHandler(item_service, store)
+	item_handler := handler.NewItemHandler(item_service, user_service, group_service, store)
 
 	line_handler := handler.NewLineHandler(store)
 
@@ -45,7 +49,6 @@ func main() {
 	http.HandleFunc("/update_item", item_handler.UpdateItem)
 	http.HandleFunc("/delete_item", item_handler.DeleteItem)
 
-	//user_service := service.NewUserService(dbRepository)
 	//user_handler := handler.NewUserHandler(user_service)
 
 	//http.HandleFunc("/users", user_handler.GetUsers)
