@@ -17,10 +17,10 @@ func (s *UserService) GetUsers() ([]models.User, error) {
 	return s.repository.GetUsers()
 }
 
-func (s *UserService) GetUser(id int) (*models.User, error) {
-	return s.repository.GetUser(id)
+func (s *UserService) GetUser(sub string) (*models.User, error) {
+	return s.repository.GetUser(sub)
 }
 
-func (s *UserService) CreateUser(user *models.User) error {
-	return s.repository.CreateUser(user)
-}
+//func (s *UserService) CreateUser(user *models.User) error {
+//	return s.repository.CreateUser(user)
+//}
