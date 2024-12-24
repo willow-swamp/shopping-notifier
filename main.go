@@ -43,7 +43,8 @@ func main() {
 
 	// Start the server
 	http.HandleFunc("/", item_handler.GetItems)
-	http.HandleFunc("/item", item_handler.GetItem)
+	//http.HandleFunc("/item", item_handler.GetItem)
+	http.HandleFunc("/new", item_handler.NewItem)
 	http.HandleFunc("/edit", item_handler.EditItem)
 	http.HandleFunc("/create_item", item_handler.CreateItem)
 	http.HandleFunc("/update_item", item_handler.UpdateItem)
