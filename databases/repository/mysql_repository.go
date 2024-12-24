@@ -14,9 +14,9 @@ func NewMySQLRepository(db *gorm.DB) *MySQLRepository {
 	return &MySQLRepository{db: db}
 }
 
-func (db MySQLRepository) GetItems() ([]models.Item, error) {
+func (db MySQLRepository) GetItems(sub string) ([]models.Item, error) {
 	var items []models.Item
-	result := db.db.Find(&items)
+	result := db.db.Where("group_id IN (?)", db.db.Table("users").Select("group_id").Where("line_id = ?", sub)).Find(&items)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -65,19 +65,28 @@ func (db MySQLRepository) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (db MySQLRepository) GetUser(id int) (*models.User, error) {
+func (db MySQLRepository) GetUser(sub string) (*models.User, error) {
 	var user models.User
-	result := db.db.First(&user, id)
+	result := db.db.Where("line_id = ?", sub).First(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 	return &user, nil
 }
 
-func (db MySQLRepository) CreateUser(user *models.User) error {
-	result := db.db.Create(user)
+//func (db MySQLRepository) CreateUser(user *models.User) error {
+//	result := db.db.Create(user)
+//	if result.Error != nil {
+//		return result.Error
+//	}
+//	return nil
+//}
+
+func (db MySQLRepository) GetGroup(id uint) (*models.Group, error) {
+	var group models.Group
+	result := db.db.First(&group, id)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
-	return nil
+	return &group, nil
 }

@@ -1,32 +1,32 @@
 {{ define "Items" }}
   {{ template "Header" }}
     {{ template "Menu"  }}
-    <h2> Registered </h2>
-    <table border="1">
-      <thead>
-      <tr>
-        <td>GroupID</td>
-        <td>Name</td>
-        <td>Priority</td>
-        <td>StockStatus</td>
-        <td>View</td>
-        <td>Edit</td>
-        <td>Delete</td>
-      </tr>
-       </thead>
-       <tbody>
-    {{ range . }}
-      <tr>
-        <td>{{ .GroupID }}</td>
-        <td> {{ .Name }} </td>
-        <td>{{ .Priority }} </td> 
-        <td>{{ .StockStatus }} </td> 
-        <td><a href="/show?id={{ .Id }}">View</a></td>
-        <td><a href="/edit?id={{ .Id }}">Edit</a></td>
-        <td><a href="/delete?id={{ .Id }}">Delete</a><td>
-      </tr>
-    {{ end }}
-       </tbody>
-    </table>
+    <div class="container mt-4 mb-auto">
+      <h2 class="text-center">登録済みアイテム</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+          <thead class="table-warning">
+            <tr>
+              <th scope="col">名前</th>
+              <th scope="col">優先度</th>
+              <th scope="col">在庫状況</th>
+              <th scope="col">編集</th>
+              <th scope="col">削除</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range . }}
+            <tr>
+              <td>{{ .Name }}</td>
+              <td>{{ .Priority }}</td>
+              <td>{{ .StockStatus }}</td>
+              <td><a href="/edit?id={{ .ID }}" class="btn btn-sm btn-custom">編集</a></td>
+              <td><a href="/delete_item?id={{ .ID }}" class="btn btn-sm btn-danger">削除</a></td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </div>
   {{ template "Footer" }}
 {{ end }}
