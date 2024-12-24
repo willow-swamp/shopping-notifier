@@ -21,7 +21,7 @@
               <td>{{ .Priority }}</td>
               <td>{{ .StockStatus }}</td>
               <td><a href="/edit?id={{ .ID }}" class="btn btn-sm btn-custom">編集</a></td>
-              <td><a href="/delete?id={{ .ID }}" class="btn btn-sm btn-danger">削除</a></td>
+              <td><a href="/delete_item?id={{ .ID }}" class="btn btn-sm btn-danger">削除</a></td>
             </tr>
             {{ end }}
           </tbody>

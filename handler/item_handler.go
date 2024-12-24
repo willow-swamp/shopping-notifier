@@ -207,6 +207,14 @@ func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	if item == nil {
+		http.Error(w, "No item", http.StatusInternalServerError)
+		return
+	}
+	if item.GroupID != user.GroupID {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 	item.GroupID = user.GroupID
 	item.Name = r.FormValue("name")
 	item.Priority, _ = strconv.Atoi(r.FormValue("priority"))
@@ -221,18 +229,46 @@ func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		nId := r.FormValue("id")
-		id, _ := strconv.Atoi(nId)
-		err := h.item_service.DeleteItem(id)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	session, err := h.store.Get(r, "line-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	sub, ok := session.Values["sub"].(string)
+	if !ok || sub == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.user_service.GetUser(sub)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	nId := r.FormValue("id")
+	id, _ := strconv.Atoi(nId)
+	item, err := h.item_service.GetItem(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if item == nil {
+		http.Error(w, "No item", http.StatusInternalServerError)
+		return
+	}
+	if item.GroupID != user.GroupID {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+	err = h.item_service.DeleteItem(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/items", http.StatusSeeOther)
 }
 
 func convToPriority(p int) string {
