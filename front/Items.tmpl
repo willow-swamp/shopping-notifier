@@ -7,11 +7,9 @@
         <table class="table table-bordered table-striped">
           <thead class="table-warning">
             <tr>
-              <th scope="col">ID</th>
               <th scope="col">名前</th>
               <th scope="col">優先度</th>
               <th scope="col">在庫状況</th>
-              <th scope="col">詳細</th>
               <th scope="col">編集</th>
               <th scope="col">削除</th>
             </tr>
@@ -19,11 +17,9 @@
           <tbody>
             {{ range . }}
             <tr>
-              <th scope="row">{{ .ID }}</th>
               <td>{{ .Name }}</td>
               <td>{{ .Priority }}</td>
               <td>{{ .StockStatus }}</td>
-              <td><a href="/show?id={{ .ID }}" class="btn btn-sm btn-custom">詳細</a></td>
               <td><a href="/edit?id={{ .ID }}" class="btn btn-sm btn-custom">編集</a></td>
               <td><a href="/delete?id={{ .ID }}" class="btn btn-sm btn-danger">削除</a></td>
             </tr>
