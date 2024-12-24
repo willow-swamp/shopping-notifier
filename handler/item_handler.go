@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -129,8 +128,8 @@ func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 	var item models.Item
 	item.GroupID = user.GroupID
 	item.Name = r.FormValue("name")
-	item.Priority = convFromPriority(r.FormValue("priority"))
-	item.StockStatus = convFromStockStatus(r.FormValue("stock_status"))
+	item.Priority, _ = strconv.Atoi(r.FormValue("priority"))
+	item.StockStatus, _ = strconv.Atoi(r.FormValue("stock_status"))
 	err = h.item_service.CreateItem(&item)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -140,6 +139,24 @@ func (h *ItemHandler) CreateItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *ItemHandler) EditItem(w http.ResponseWriter, r *http.Request) {
+	session, err := h.store.Get(r, "line-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sub, ok := session.Values["sub"].(string)
+	if !ok || sub == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.user_service.GetUser(sub)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	nId := r.URL.Query().Get("id")
 	id, _ := strconv.Atoi(nId)
 	item, err := h.item_service.GetItem(id)
@@ -151,32 +168,56 @@ func (h *ItemHandler) EditItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No item", http.StatusInternalServerError)
 		return
 	}
-	json.NewEncoder(w).Encode(item)
+	if item.GroupID != user.GroupID {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "EditItem", item)
 }
 
 func (h *ItemHandler) UpdateItem(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		nId := r.FormValue("id")
-		id, _ := strconv.Atoi(nId)
-		item, err := h.item_service.GetItem(id)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		group_id := r.FormValue("group_id")
-		item.GroupID, _ = strconv.Atoi(group_id)
-		item.Name = r.FormValue("name")
-		item.Priority = convFromPriority(r.FormValue("priority"))
-		item.StockStatus = convFromStockStatus(r.FormValue("stock_status"))
-		err = h.item_service.UpdateItem(item)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-	} else {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
+
+	session, err := h.store.Get(r, "line-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	sub, ok := session.Values["sub"].(string)
+	if !ok || sub == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	user, err := h.user_service.GetUser(sub)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	nId := r.FormValue("id")
+	id, _ := strconv.Atoi(nId)
+	item, err := h.item_service.GetItem(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	item.GroupID = user.GroupID
+	item.Name = r.FormValue("name")
+	item.Priority, _ = strconv.Atoi(r.FormValue("priority"))
+	item.StockStatus, _ = strconv.Atoi(r.FormValue("stock_status"))
+	err = h.item_service.UpdateItem(item)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/items", http.StatusSeeOther)
 }
 
 func (h *ItemHandler) DeleteItem(w http.ResponseWriter, r *http.Request) {

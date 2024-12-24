@@ -1,31 +1,32 @@
-{{ define "NewItem" }}
+{{ define "EditItem" }}
   {{ template "Header" }}
     <div class="container form-container mt-4 mb-auto">
       <h2 class="text-center">アイテムの詳細を入力</h2>
-      <form method="POST" action="/create_item">
+      <form method="POST" action="/update_item">
+        <input type="hidden" name="id" value="{{ .ID }}">
         <div class="mb-3">
           <label for="name" class="form-label">アイテム名</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="例: トイレットペーパー" required>
+          <input type="text" class="form-control" id="name" name="name" value="{{ .Name }}" placeholder="例: トイレットペーパー" required>
         </div>
         <div class="mb-3">
           <label for="priority" class="form-label">優先度</label>
           <select class="form-select" id="priority" name="priority" required>
             <option value="" disabled selected>選択してください</option>
-            <option value="1">低</option>
-            <option value="2">中</option>
-            <option value="3">高</option>
+            <option value="1" {{ if eq .Priority 1 }}selected{{ end }}>低</option>
+            <option value="2" {{ if eq .Priority 2 }}selected{{ end }}>中</option>
+            <option value="3" {{ if eq .Priority 3 }}selected{{ end }}>高</option>
           </select>
         </div>
         <div class="mb-3">
           <label for="stock_status" class="form-label">在庫状況</label>
           <select class="form-select" id="stock_status" name="stock_status" required>
             <option value="" disabled selected>選択してください</option>
-            <option value="1">在庫あり</option>
-            <option value="2">在庫なし</option>
+            <option value="1" {{ if eq .StockStatus 1 }}selected{{ end }}>在庫あり</option>
+            <option value="2" {{ if eq .StockStatus 2 }}selected{{ end }}>在庫なし</option>
           </select>
         </div>
         <div class="text-center">
-          <button type="submit" class="btn btn-custom">登録</button>
+          <button type="submit" class="btn btn-custom">更新</button>
         </div>
       </form>
     </div>
