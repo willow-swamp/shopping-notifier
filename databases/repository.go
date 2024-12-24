@@ -5,7 +5,7 @@ import (
 )
 
 type ItemRepository interface {
-	GetItems(group_id uint) ([]models.Item, error)
+	GetItems(sub string) ([]models.Item, error)
 	GetItem(id int) (*models.Item, error)
 	CreateItem(item *models.Item) error
 	UpdateItem(item *models.Item) error

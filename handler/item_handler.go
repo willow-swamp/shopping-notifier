@@ -44,27 +44,7 @@ func (h *ItemHandler) GetItems(w http.ResponseWriter, r *http.Request) {
 	LoginUser.Name = session.Values["name"].(string)
 	LoginUser.Picture = session.Values["picture"].(string)
 
-	user, err := h.user_service.GetUser(LoginUser.Sub)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if user == nil {
-		http.Error(w, "No user", http.StatusInternalServerError)
-		return
-	}
-
-	group, err := h.group_service.GetGroup(user.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	if group == nil {
-		http.Error(w, "No group", http.StatusInternalServerError)
-		return
-	}
-
-	items, err := h.item_service.GetItems(group.ID)
+	items, err := h.item_service.GetItems(sub)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

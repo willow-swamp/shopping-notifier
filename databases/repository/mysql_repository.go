@@ -14,9 +14,9 @@ func NewMySQLRepository(db *gorm.DB) *MySQLRepository {
 	return &MySQLRepository{db: db}
 }
 
-func (db MySQLRepository) GetItems(group_id uint) ([]models.Item, error) {
+func (db MySQLRepository) GetItems(sub string) ([]models.Item, error) {
 	var items []models.Item
-	result := db.db.Where("group_id = ?", group_id).Find(&items)
+	result := db.db.Where("group_id IN (?)", db.db.Table("users").Select("group_id").Where("line_id = ?", sub)).Find(&items)
 	if result.Error != nil {
 		return nil, result.Error
 	}

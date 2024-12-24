@@ -13,8 +13,8 @@ func NewItemService(repository databases.ItemRepository) *ItemService {
 	return &ItemService{repository: repository}
 }
 
-func (s *ItemService) GetItems(group_id uint) ([]models.Item, error) {
-	return s.repository.GetItems(group_id)
+func (s *ItemService) GetItems(sub string) ([]models.Item, error) {
+	return s.repository.GetItems(sub)
 }
 
 func (s *ItemService) GetItem(id int) (*models.Item, error) {
