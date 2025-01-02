@@ -1,6 +1,8 @@
 package databases
 
 import (
+	"os"
+
 	mysql "github.com/go-sql-driver/mysql"
 	"github.com/willow-swamp/shopping-notifier/models"
 	gorm_mysql "gorm.io/driver/mysql"
@@ -9,11 +11,11 @@ import (
 
 func DBConn() (*gorm.DB, error) {
 	config := mysql.Config{
-		User:      "user",
-		Passwd:    "password",
+		User:      os.Getenv("DB_USER"),
+		Passwd:    os.Getenv("DB_PASSWORD"),
 		Net:       "tcp",
-		Addr:      "127.0.0.1:3306",
-		DBName:    "gorm_database",
+		Addr:      os.Getenv("DB_HOST") + ":" + os.Getenv("DB_PORT"),
+		DBName:    os.Getenv("DB_NAME"),
 		ParseTime: true,
 		Params: map[string]string{
 			"loc": "Local",
